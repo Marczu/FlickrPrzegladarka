@@ -24,6 +24,7 @@ class GetFlickerJsonData extends AsyncTask<String, Void, List<Photo>> implements
     private boolean mMatchAll;
 
     private final OnDataAvailable mcallback;
+    private boolean runningOnSameThread = false;
 
 
     interface OnDataAvailable {
@@ -40,6 +41,8 @@ class GetFlickerJsonData extends AsyncTask<String, Void, List<Photo>> implements
     }
 
     void executeOnSameThread(String searchCriteria) {
+        Log.d(TAG, "runningOnSameThreadStart");
+        runningOnSameThread = true;
         String destinationUri = createUri(searchCriteria, mLanguage, mMatchAll);
 
         GetRawData getRawData = new GetRawData(this);
@@ -120,7 +123,7 @@ class GetFlickerJsonData extends AsyncTask<String, Void, List<Photo>> implements
                 status = DownloadStatus.FAILED_OR_EMPTY;
             }
         }
-        if(mcallback != null){
+        if(runningOnSameThread && mcallback != null){
             mcallback.OnDataAvailable(mPhotoList, status);
         }
         Log.d(TAG, "onDownloadComplete: Ends");

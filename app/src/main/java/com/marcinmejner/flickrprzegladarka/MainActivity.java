@@ -1,15 +1,22 @@
 package com.marcinmejner.flickrprzegladarka;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements GetFlickerJsonData.OnDataAvailable {
+public class MainActivity extends BaseActivity implements GetFlickerJsonData.OnDataAvailable,
+        RecyclerItemClickListener.OnRecyclerClickListener {
+    FlickrRecyclerViewAdapter flickrRecyclerViewAdapter;
+
     private static final String TAG = "MainActivity";
 
 
@@ -20,6 +27,15 @@ public class MainActivity extends AppCompatActivity implements GetFlickerJsonDat
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this, recyclerView, this));
+
+
+        flickrRecyclerViewAdapter = new FlickrRecyclerViewAdapter(this, new ArrayList<Photo>());
+        recyclerView.setAdapter(flickrRecyclerViewAdapter);
 
 //        GetRawData getRawData = new GetRawData(this);
 //        getRawData.execute("https://api.flickr.com/services/feeds/photos_public.gne?tags=oreo,android&tagmode=any&format=json&nojsoncallback=1");
@@ -34,7 +50,8 @@ public class MainActivity extends AppCompatActivity implements GetFlickerJsonDat
         Log.d(TAG, "onPostResume: Starts");
         super.onResume();
         GetFlickerJsonData getFlickerJsonData = new GetFlickerJsonData(this, "https://api.flickr.com/services/feeds/photos_public.gne", "en-us", true);
-        getFlickerJsonData.executeOnSameThread("android, nougat");
+//        getFlickerJsonData.executeOnSameThread("android, nougat");
+        getFlickerJsonData.execute("android, nougat");
         Log.d(TAG, "onPostResume: ends");
     }
 
@@ -63,13 +80,32 @@ public class MainActivity extends AppCompatActivity implements GetFlickerJsonDat
 
     @Override
     public void OnDataAvailable(List<Photo> data, DownloadStatus stats) {
+        Log.d(TAG, "OnDataAvailable: starts");
         if (stats == DownloadStatus.OK) {
-            Log.d(TAG, "OnDataAvailable: Data is : " + data);
+
+            flickrRecyclerViewAdapter.loadNewData(data);
+
         } else {
             Log.e(TAG, "OnDataAvailable failed with status " + stats);
         }
 
+        Log.d(TAG, "OnDataAvailable: ends");
     }
 
 
+    @Override
+    public void onItemClick(View view, int position) {
+        Log.d(TAG, "onItemClick: starts");
+        Toast.makeText(MainActivity.this, "Normal tap at position "+ position, Toast.LENGTH_LONG).show();
+
+
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+        Log.d(TAG, "onItemLongClick: starts ");
+        Toast.makeText(MainActivity.this, "Long tap at position "+ position, Toast.LENGTH_LONG).show();
+
+        
+    }
 }
