@@ -37,28 +37,33 @@ class FlickrRecyclerViewAdapter extends RecyclerView.Adapter<FlickrRecyclerViewA
 
     @Override
     public void onBindViewHolder(FlickrImageViewHolder holder, int position) {
-        Photo photoItem = mPhotoList.get(position);
-        Log.d(TAG, "onBindViewHolder: " + photoItem.getTitle() + " ---> " + position );
-        Picasso.with(context).load(photoItem.getImage())
-                .error(R.drawable.placeholder)
-                .placeholder(R.drawable.placeholder)
-                .into(holder.thumbnail);
 
-        holder.title.setText(photoItem.getTitle());
+        if ((mPhotoList == null) || (mPhotoList.size() == 0)) {
+            holder.thumbnail.setImageResource(R.drawable.placeholder);
+            holder.title.setText("Nie znaleziono obrazka.\n\nUzyj nowego wyszukiwania");
+        } else {
+            Photo photoItem = mPhotoList.get(position);
+            Log.d(TAG, "onBindViewHolder: " + photoItem.getTitle() + " ---> " + position);
+            Picasso.with(context).load(photoItem.getImage())
+                    .error(R.drawable.placeholder)
+                    .placeholder(R.drawable.placeholder)
+                    .into(holder.thumbnail);
 
+            holder.title.setText(photoItem.getTitle());
+        }
     }
 
     @Override
     public int getItemCount() {
-        return ((mPhotoList != null) && (mPhotoList.size() != 0) ? mPhotoList.size() : 0);
+        return ((mPhotoList != null) && (mPhotoList.size() != 0) ? mPhotoList.size() : 1);
     }
 
-    void loadNewData(List<Photo> newPhotos){
+    void loadNewData(List<Photo> newPhotos) {
         mPhotoList = newPhotos;
         notifyDataSetChanged();
     }
 
-    public Photo getPhoto(int position){
+    public Photo getPhoto(int position) {
 
         return ((mPhotoList != null) && (mPhotoList.size() != 0) ? mPhotoList.get(position) : null);
     }

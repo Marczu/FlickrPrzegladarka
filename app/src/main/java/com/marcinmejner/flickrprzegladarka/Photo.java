@@ -1,10 +1,13 @@
 package com.marcinmejner.flickrprzegladarka;
 
+import java.io.Serializable;
+
 /**
  * Created by Marc on 13.01.2018.
  */
 
-class Photo {
+class Photo implements Serializable{
+    public static final long serialVersionUID = 1L;
 
     private String mTitle;
     private String mAuthor;

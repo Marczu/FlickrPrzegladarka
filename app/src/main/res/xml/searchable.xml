@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<searchable xmlns:android="http://schemas.android.com/apk/res/androidt"
+    xmlns:android1="http://schemas.android.com/apk/res/android"
+
+    android1:hint="@string/hint_search"
+    android1:label="@string/title_activity_search" />

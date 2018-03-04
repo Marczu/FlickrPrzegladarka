@@ -1,9 +1,11 @@
 package com.marcinmejner.flickrprzegladarka;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,8 +27,8 @@ public class MainActivity extends BaseActivity implements GetFlickerJsonData.OnD
         Log.d(TAG, "onCreate: START");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
+        activateToolbar(false);
 
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -49,10 +51,16 @@ public class MainActivity extends BaseActivity implements GetFlickerJsonData.OnD
     protected void onResume() {
         Log.d(TAG, "onPostResume: Starts");
         super.onResume();
-        GetFlickerJsonData getFlickerJsonData = new GetFlickerJsonData(this, "https://api.flickr.com/services/feeds/photos_public.gne", "en-us", true);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String queryResult = sharedPreferences.getString(FLICKR_QUERY, "");
+
+        if(queryResult.length() > 0 ){
+            GetFlickerJsonData getFlickerJsonData = new GetFlickerJsonData(this, "https://api.flickr.com/services/feeds/photos_public.gne", "en-us", true);
 //        getFlickerJsonData.executeOnSameThread("android, nougat");
-        getFlickerJsonData.execute("android, nougat");
-        Log.d(TAG, "onPostResume: ends");
+            getFlickerJsonData.execute(queryResult);
+        }
+
     }
 
     @Override
@@ -74,6 +82,13 @@ public class MainActivity extends BaseActivity implements GetFlickerJsonData.OnD
         if (id == R.id.action_settings) {
             return true;
         }
+
+        if(id == R.id.action_search){
+            Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
         Log.d(TAG, "onOptionsItemSelected() returned: returned");
         return super.onOptionsItemSelected(item);
     }
@@ -104,7 +119,11 @@ public class MainActivity extends BaseActivity implements GetFlickerJsonData.OnD
     @Override
     public void onItemLongClick(View view, int position) {
         Log.d(TAG, "onItemLongClick: starts ");
-        Toast.makeText(MainActivity.this, "Long tap at position "+ position, Toast.LENGTH_LONG).show();
+//        Toast.makeText(MainActivity.this, "Long tap at position "+ position, Toast.LENGTH_LONG).show();
+
+        Intent intent = new Intent(MainActivity.this, PhotoDetailActivity.class);
+        intent.putExtra(PHOTO_TRANSFER, flickrRecyclerViewAdapter.getPhoto(position));
+        startActivity(intent);
 
         
     }
